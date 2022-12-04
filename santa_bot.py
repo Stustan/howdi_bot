@@ -10,7 +10,7 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 members_list = []
 members_id = []
-pairs = {"santa": "gifted_one"}
+pairs = {}
 
 def shuffle_members (members_list):
     random.shuffle(members_list)
@@ -44,10 +44,13 @@ async def dispatch_func(message: types.Message):
 
 @dp.message_handler(commands=['pm_all'])
 async def sending_func(message: types.Message):
-    pairs = set_santa(members_list)
+    """for i in range(len(members_id)):
+        howdi_str = 'Дарова, ' + members_list[i]
+        await bot.send_message(members_id[i], howdi_str)"""
+
     for i in range(len(members_id)):
-        howdi_str = 'Ты Тайный Санта для: ' + pairs[i]
-        await bot.send_message(members_id[i], howdi_str)
+       howdi_str = 'Ты Тайный Санта для: ' + str(pairs[members_list[i]])
+       await bot.send_message(members_id[i], howdi_str)
 
 @dp.message_handler()
 async def add_user(message: types.Message):
