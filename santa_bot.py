@@ -32,6 +32,7 @@ async def send_welcome(message: types.Message):
 @dp.message_handler(commands=['shuffle'])
 async def shuffle_func(message: types.Message):
     shuffle_members(members_list)
+    pairs = set_santa(members_list)
     await message.reply("Я замешал список участников")
 
 """@dp.message_handler(commands=['i_am_santa_for'])
@@ -44,13 +45,14 @@ async def dispatch_func(message: types.Message):
 
 @dp.message_handler(commands=['pm_all'])
 async def sending_func(message: types.Message):
+    pairs = set_santa(members_list)
     """for i in range(len(members_id)):
         howdi_str = 'Дарова, ' + members_list[i]
         await bot.send_message(members_id[i], howdi_str)"""
-
-    for i in range(len(members_id)):
-       howdi_str = 'Ты Тайный Санта для: ' + str(pairs[members_list[i]])
-       await bot.send_message(members_id[i], howdi_str)
+    for i in range(len(members_list)):
+        member_argument = str(members_list[i])
+        howdi_str = 'Ты Тайный Санта для: ' + str(pairs[member_argument])
+        await bot.send_message(members_id[i], howdi_str)
 
 @dp.message_handler()
 async def add_user(message: types.Message):
