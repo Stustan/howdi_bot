@@ -51,40 +51,31 @@ async def sending_func(message: types.Message):
     del incoming_list[0]
     if len(incoming_list) == 0:
         await message.reply('Вы не ввели список участников!')
+    members_to_sort = {}
     missing_participants = []
-    unexpected_participants = []
-    #await message.reply(incoming_list)
-    santa_pairs = {}
-    arr = []
-    member_is_found = False
-    member_in_list = False
-    member_in_array = False
-    for i, j in members_data.items():
-        arr.append(j[1])
     for p in incoming_list:
-        for k, v in members_data.items():  # Тут в k будет лежать id-шник игрока, в v - массив с айдишником и именем
-            if p in arr:
-                if v[1] in incoming_list:
-                    member_in_list = True
-                    member_in_array = True
-                else:
-                    unexpected_participants.append(v[1])
-                    member_in_list = True
-                    member_in_array = False
-                    break
-            elif p not in arr:
-                missing_participants.append(p)
-                member_in_list = True
-                member_in_array = False
+        member_is_found = False
+        for k, v in members_data.items():
+            if v[1] == p:
+                member_is_found = True
                 break
-    if (len(missing_participants) == 0) and (len(unexpected_participants) == 0):
-        # Если этот список пустой, значит все игроки, которых мы ввели в pm_all, зарегистрированы
-        id_pairs = set_santa(members_data)
-    elif member_in_list and (not member_in_array):
-        await message.reply('Unexpected participants: ' + str(unexpected_participants))
-    else:
-        await message.reply('Missing participants: ' + str(missing_participants))
+        if not member_is_found:
+            missing_participants.append(p)
+    if len(missing_participants) == 0:
 
+        for o in incoming_list:
+            for l, m in members_data.items():
+                if m[1] == o:
+                    members_to_sort[l] = m
+                    break
+        sorted_pairs = set_santa(members_to_sort)
+        for j in sorted_pairs:
+            for h, i in members_data.items():
+                await bot.send_message(j[0], 'Ты Тайный Санта для: ' + str(members_data[j[1]][1]))
+                break
+    else:
+        # Если тут есть хоть один чувак, значит начинать нельзя, нужно написать в чат, кого не хватает
+        await message.reply('Missing participants: ' + str(missing_participants))
 @dp.message_handler()
 async def exception_message(message: types.Message):
     user_message = message.text
