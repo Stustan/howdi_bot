@@ -30,19 +30,16 @@ def set_santa(members_dict):
     return id_pairs
 
 
-@dp.message_handler(commands=['start', 'help'])
+@dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     await message.reply("Здравствуйте!\nЯ бот Тайного Санты!\nВы участвуете в игре!")
-    members_data[message.from_user.id] = [message.from_user.id, message.from_user.first_name]
-    await message.answer(members_data)
 
 
-
-@dp.message_handler(commands=['shuffle'])
+"""@dp.message_handler(commands=['shuffle'])
 async def shuffle_func(message: types.Message):
     pairs = set_santa(members_data)
     await message.reply("Я замешал список участников")
-    await message.reply(str(pairs))
+    await message.reply(str(pairs))"""
 
 
 @dp.message_handler(commands=['pm_all'])
