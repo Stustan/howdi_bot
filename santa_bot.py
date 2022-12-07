@@ -8,56 +8,92 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
-member_data = {'member_id': [['member_id'], ['member_name']]}
-pairs = {}
+members_data = {}
+
 
 def shuffle_members (members_id):
     random.shuffle(members_id)
     return members_id
 
-def set_santa (member_data):
-    members_id = dict.keys(member_data)
+
+def set_santa(members_dict):
+    members_id = list(members_dict.keys())
     n = len(members_id)
-    print(members_id)
     shuffle_members(members_id)
-    """for i in range(n):
+    print(members_id)
+    id_pairs = []
+    for i in range(n):
         if i == n-1:
-            pairs[members_id[n-1]] = members_id[0]
+            id_pairs.append([members_id[i], members_id[0]])
         else:
-            pairs[members_id[i]] = members_id[i+1]
-    return pairs"""
+            id_pairs.append([members_id[i], members_id[i+1]])
+    return id_pairs
+
 
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
     await message.reply("Здравствуйте!\nЯ бот Тайного Санты!\nВы участвуете в игре!")
-    member_data['member_id'].append(message.from_user.id)
-    member_data[message.from_user.id] = [[message.from_user.id], [message.from_user.first_name]]
-    await message.answer(member_data)
+    members_data[message.from_user.id] = [message.from_user.id, message.from_user.first_name]
+    await message.answer(members_data)
+
+
 
 @dp.message_handler(commands=['shuffle'])
 async def shuffle_func(message: types.Message):
-    set_santa(member_data)
+    pairs = set_santa(members_data)
     await message.reply("Я замешал список участников")
-    await message.reply(pairs)
+    await message.reply(str(pairs))
 
-"""@dp.message_handler(commands=['i_am_santa_for'])
-async def dispatch_func(message: types.Message):
-    santa_pairs = set_santa(members_list)
-    i=0
-    while message.from_user.first_name != santa_pairs[i]:
-        i=i+1
-    await message.reply("Ты Тайный санта для: ", {gifted_one[message.from_user.name]})"""
 
 @dp.message_handler(commands=['pm_all'])
 async def sending_func(message: types.Message):
-    pairs = set_santa(members_list)
-    """for i in range(len(members_id)):
-        howdi_str = 'Дарова, ' + members_list[i]
-        await bot.send_message(members_id[i], howdi_str)"""
-    for i in range(len(members_list)):
-        member_argument = str(members_list[i])
-        howdi_str = 'Ты Тайный Санта для: ' + str(pairs[member_argument])
-        await bot.send_message(members_id[i], howdi_str)
+    incoming_list = str(message.text).split()
+    del incoming_list[0]
+    if len(incoming_list) == 0:
+        await message.reply('Вы не ввели список участников!')
+    missing_participants = []
+    unexpected_participants = []
+    #await message.reply(incoming_list)
+    santa_pairs = {}
+    arr = []
+    member_is_found = False
+    member_in_list = False
+    member_in_array = False
+    for i, j in members_data.items():
+        arr.append(j[1])
+    for p in incoming_list:
+        for k, v in members_data.items():  # Тут в k будет лежать id-шник игрока, в v - массив с айдишником и именем
+            if p in arr:
+                await message.reply(p + ' is in array')
+                if v[1] in incoming_list:
+                    member_in_list = True
+                    member_in_array = True
+                    await message.reply(v[1] + ' in incoming list')
+                else:
+                    unexpected_participants.append(v[1])
+                    member_in_list = False
+                    member_in_array = True
+                    await message.reply(v[1] + ' is not in incoming list')
+                    await message.reply(str(unexpected_participants))
+                    break
+            elif p not in arr:
+                missing_participants.append(p)
+                await message.reply(p)
+                member_in_list = True
+                member_in_array = False
+                await message.reply(p + ' is not in participants list')
+                await message.reply(str(missing_participants))
+                break
+    if (len(missing_participants) == 0) and (len(unexpected_participants) == 0):
+        # Если этот список пустой, значит все игроки, которых мы ввели в pm_all, зарегистрированы
+        id_pairs = set_santa(members_data)
+        await message.reply(str(id_pairs))
+    elif member_in_list and not member_in_array:
+        await message.reply('unexpected participants: ' + str(unexpected_participants))
+
+    else:
+        # Если тут есть хоть один чувак, значит начинать нельзя, нужно написать в чат, кого не хватает
+        await message.reply('Missing participants: ' + str(missing_participants))
 
 @dp.message_handler()
 async def exception_message(message: types.Message):
