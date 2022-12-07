@@ -64,35 +64,25 @@ async def sending_func(message: types.Message):
     for p in incoming_list:
         for k, v in members_data.items():  # Тут в k будет лежать id-шник игрока, в v - массив с айдишником и именем
             if p in arr:
-                await message.reply(p + ' is in array')
                 if v[1] in incoming_list:
                     member_in_list = True
                     member_in_array = True
-                    await message.reply(v[1] + ' in incoming list')
                 else:
                     unexpected_participants.append(v[1])
-                    member_in_list = False
-                    member_in_array = True
-                    await message.reply(v[1] + ' is not in incoming list')
-                    await message.reply(str(unexpected_participants))
+                    member_in_list = True
+                    member_in_array = False
                     break
             elif p not in arr:
                 missing_participants.append(p)
-                await message.reply(p)
                 member_in_list = True
                 member_in_array = False
-                await message.reply(p + ' is not in participants list')
-                await message.reply(str(missing_participants))
                 break
     if (len(missing_participants) == 0) and (len(unexpected_participants) == 0):
         # Если этот список пустой, значит все игроки, которых мы ввели в pm_all, зарегистрированы
         id_pairs = set_santa(members_data)
-        await message.reply(str(id_pairs))
-    elif member_in_list and not member_in_array:
-        await message.reply('unexpected participants: ' + str(unexpected_participants))
-
+    elif member_in_list and (not member_in_array):
+        await message.reply('Unexpected participants: ' + str(unexpected_participants))
     else:
-        # Если тут есть хоть один чувак, значит начинать нельзя, нужно написать в чат, кого не хватает
         await message.reply('Missing participants: ' + str(missing_participants))
 
 @dp.message_handler()
