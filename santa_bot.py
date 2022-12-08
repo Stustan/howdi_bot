@@ -1,4 +1,5 @@
-import random, logging
+import random
+import logging
 
 from aiogram import Bot, Dispatcher, executor, types
 
@@ -11,7 +12,7 @@ dp = Dispatcher(bot)
 members_data = {}
 
 
-def shuffle_members (members_id):
+def shuffle_members(members_id):
     random.shuffle(members_id)
     return members_id
 
@@ -32,47 +33,51 @@ def set_santa(members_dict):
 
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
+    members_data[message.from_user.id] = [message.from_user.id, message.from_user.first_name]
     await message.reply("Здравствуйте!\nЯ бот Тайного Санты!\nВы участвуете в игре!")
 
 
-"""@dp.message_handler(commands=['shuffle'])
-async def shuffle_func(message: types.Message):
-    pairs = set_santa(members_data)
-    await message.reply("Я замешал список участников")
-    await message.reply(str(pairs))"""
-
-
-@dp.message_handler(commands=['pm_all'])
+@dp.message_handler(commands=['get_all'])
 async def sending_func(message: types.Message):
-    incoming_list = str(message.text).split()
-    del incoming_list[0]
-    if len(incoming_list) == 0:
-        await message.reply('Вы не ввели список участников!')
-    members_to_sort = {}
-    missing_participants = []
-    for p in incoming_list:
-        member_is_found = False
-        for k, v in members_data.items():
-            if v[1] == p:
-                member_is_found = True
-                break
-        if not member_is_found:
-            missing_participants.append(p)
-    if len(missing_participants) == 0:
+    await message.reply(str(members_data))
 
-        for o in incoming_list:
-            for l, m in members_data.items():
-                if m[1] == o:
-                    members_to_sort[l] = m
+
+@dp.message_handler(commands=['shake_my_secret_santa'])
+async def sending_func(message: types.Message):
+    if message.from_user.first_name == 'David':
+        incoming_list = str(message.text).split()
+        del incoming_list[0]
+        if len(incoming_list) == 0:
+            await message.reply('Вы не ввели список участников!')
+        members_to_sort = {}
+        missing_participants = []
+        for p in incoming_list:
+            member_is_found = False
+            for k, v in members_data.items():
+                if v[1] == p:
+                    member_is_found = True
                     break
-        sorted_pairs = set_santa(members_to_sort)
-        for j in sorted_pairs:
-            for h, i in members_data.items():
-                await bot.send_message(j[0], 'Ты Тайный Санта для: ' + str(members_data[j[1]][1]))
-                break
+            if not member_is_found:
+                missing_participants.append(p)
+        if len(missing_participants) == 0:
+
+            for o in incoming_list:
+                for p, m in members_data.items():
+                    if m[1] == o:
+                        members_to_sort[p] = m
+                        break
+            sorted_pairs = set_santa(members_to_sort)
+            for j in sorted_pairs:
+                for h, i in members_data.items():
+                    await bot.send_message(j[0], 'Ты Тайный Санта для: ' + str(members_data[j[1]][1]))
+                    break
+        else:
+            # Если тут есть хоть один чувак, значит начинать нельзя, нужно написать в чат, кого не хватает
+            await message.reply('Missing participants: ' + str(missing_participants))
     else:
-        # Если тут есть хоть один чувак, значит начинать нельзя, нужно написать в чат, кого не хватает
-        await message.reply('Missing participants: ' + str(missing_participants))
+        await message.reply('Извините, но Вы не ведущий(')
+
+
 @dp.message_handler()
 async def exception_message(message: types.Message):
     user_message = message.text
