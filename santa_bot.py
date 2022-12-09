@@ -10,8 +10,7 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
-members_data = {215689976: [215689976, 'Stan'], 179906609: [179906609, 'David'], 306300575: [306300575, 'Valery'], 874831756: [874831756, 'Dasha'], 185280118: [185280118, 'Alexey'], 828845247: [828845247, 'Мурад'], 663764121: [663764121, 'Tatiana F'], 228786824: [228786824, 'Дмитрий']}
-
+members_data = {215689976: [215689976, 'Stan'], 179906609: [179906609, 'David'], 306300575: [306300575, 'Valery'], 874831756: [874831756, 'Dasha'], 185280118: [185280118, 'Alexey'], 828845247: [828845247, 'Мурад'], 663764121: [663764121, 'Tatiana F'], 228786824: [228786824, 'Дмитрий'], 377721143: [377721143, 'Alexander'], 282438465: [282438465, 'Master']}
 
 def shuffle_members(members_id):
     random.shuffle(members_id)
@@ -45,7 +44,7 @@ async def sending_func(message: types.Message):
 
 @dp.message_handler(commands=['shake_my_secret_santa'])
 async def sending_func(message: types.Message):
-    if message.from_user.first_name == 'David':
+    #if message.from_user.first_name == 'David':
         incoming_list = str(message.text).split(',')
         incoming_list[0] = ' '.join(incoming_list[0].split()[1:])
         if len(incoming_list) == 0:
@@ -69,15 +68,17 @@ async def sending_func(message: types.Message):
                         break
             sorted_pairs = set_santa(members_to_sort)
             for j in sorted_pairs:
-                await bot.send_message(j[0], 'Ты Тайный Санта для: ' + str(members_data[j[1]][1]))
-                break
+                for h, i in members_data.items():
+                    await bot.send_message(j[0], 'Ты Тайный Санта для: ' + str(members_data[j[1]][1]))
+                    with open('dance-dancing.gif', 'rb') as gif_file:
+                        await bot.send_animation(j[0], gif_file)
+
         else:
             # Если тут есть хоть один чувак, значит начинать нельзя, нужно написать в чат, кого не хватает
             await message.reply('Missing participants: ' + str(missing_participants))
-        with open('dance-dancing.gif', 'rb') as gif_file:
-            await bot.send_animation(215689976, gif_file)
-    else:
-        await message.reply('Извините, но Вы не ведущий(')
+
+    #else:
+        #await message.reply('Извините, но Вы не ведущий(')
 
 
 @dp.message_handler()
