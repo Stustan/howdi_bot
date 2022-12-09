@@ -44,7 +44,7 @@ async def sending_func(message: types.Message):
 
 @dp.message_handler(commands=['shake_my_secret_santa'])
 async def sending_func(message: types.Message):
-    #if message.from_user.first_name == 'David':
+    if message.from_user.first_name == 'David':
         incoming_list = str(message.text).split(',')
         incoming_list[0] = ' '.join(incoming_list[0].split()[1:])
         if len(incoming_list) == 0:
@@ -68,17 +68,13 @@ async def sending_func(message: types.Message):
                         break
             sorted_pairs = set_santa(members_to_sort)
             for j in sorted_pairs:
-                for h, i in members_data.items():
-                    await bot.send_message(j[0], 'Ты Тайный Санта для: ' + str(members_data[j[1]][1]))
-                    with open('dance-dancing.gif', 'rb') as gif_file:
-                        await bot.send_animation(j[0], gif_file)
-
+                await bot.send_message(j[0], 'Ты Тайный Санта для: ' + str(members_data[j[1]][1]))
+                break
         else:
             # Если тут есть хоть один чувак, значит начинать нельзя, нужно написать в чат, кого не хватает
             await message.reply('Missing participants: ' + str(missing_participants))
-
-    #else:
-        #await message.reply('Извините, но Вы не ведущий(')
+    else:
+        await message.reply('Извините, но Вы не ведущий(')
 
 
 @dp.message_handler()
