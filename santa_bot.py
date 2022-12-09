@@ -69,7 +69,6 @@ async def sending_func(message: types.Message):
             sorted_pairs = set_santa(members_to_sort)
             for j in sorted_pairs:
                 await bot.send_message(j[0], 'Ты Тайный Санта для: ' + str(members_data[j[1]][1]))
-                break
         else:
             # Если тут есть хоть один чувак, значит начинать нельзя, нужно написать в чат, кого не хватает
             await message.reply('Missing participants: ' + str(missing_participants))
